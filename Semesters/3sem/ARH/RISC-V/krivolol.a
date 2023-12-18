@@ -1,0 +1,102 @@
+main    addi sp, x0, 0x100 ;stog
+        slli sp, sp, 8
+
+        lui s0, %hi(0xffff0f00)     ;gpio u t0
+        addi s0, s0, %lo(0xffff0f00)
+
+        auipc t1, %pcrel_hi(0x500)
+        addi t1, t1, %pcrel_lo(0x500)
+        lw a0, 0(t1)
+        jal x0, PRETVORI
+end     halt
+        
+PRETVORI addi t2,x0,0        
+loop    addi t2,x0,100    
+        beq a0,x0,finloop
+        beq a0,t2,do_100 
+        addi t2, x0, 90
+        bge a0,t2,do_90
+        addi t2, x0, 50
+        bge a0,t2,do_50
+        addi t2, x0, 40
+        bge a0,t2,do_40
+        addi t2, x0, 10
+        bge a0,t2,do_10
+        addi t2,x0,9
+        bge a0,t2,do_9
+        addi t2,x0,5
+        bge a0,t2,do_5
+        addi t2,x0,4
+        bge a0,t2,do_4
+        addi t2,x0,1
+        bge a0,t2,do_1
+        jal  x0,loop
+
+finloop jal x0, end
+
+do_100  addi a1, x0, 0x43 
+        jal ra, lcdwr
+        jal  x0,finloop
+
+do_90   addi a1, x0, 0x58
+        jal ra, lcdwr
+        addi a1, x0, 0x43
+        jal  ra,lcdwr
+        addi a0,a0,-90
+        jal  x0,loop
+
+do_50   addi a1, x0, 0x4c
+        jal ra, lcdwr
+        addi a0, a0, -50
+        jal  x0,loop
+
+do_40   addi a1, x0, 0x58
+        jal ra, lcdwr
+        addi a1, x0, 0x4c
+        jal ra, lcdwr
+        addi a0,a0,-40
+        jal  x0,loop 
+
+do_10   addi a1, x0, 0x58
+        jal ra, lcdwr
+        addi a0,a0,-10
+        jal  x0,loop
+
+do_9    addi a1, x0, 0x49
+        jal ra, lcdwr
+        addi a1, x0, 0x58
+        jal ra, lcdwr
+        addi a0, a0, -9
+        jal  x0,loop 
+
+do_5    addi a1, x0, 0x56
+        jal ra, lcdwr
+        addi a0,a0,-5
+        jal  x0,loop
+
+do_4    addi a1,x0,0x49
+        jal ra, lcdwr
+        addi a1,x0, 0x56
+        jal ra, lcdwr
+        addi a0,a0,-4
+        jal x0,loop
+
+do_1    addi a1, x0, 0x49
+        jal ra, lcdwr
+        addi a0,a0,-1
+        jal  x0,loop
+        
+        
+lcdwr   andi a1,a1,0x7F ;program za ispis sa predavanja
+        sb a1, 4(s0)
+        ori a1,a1,0x80
+        sb a1, 4(s0)
+        andi a1,a1,0x7F
+        sb a1, 4(s0)
+        jalr x0, 0(ra)
+
+
+ org 0x500
+name dw 8 ;neki broj
+
+        

@@ -1,0 +1,62 @@
+MAIN    MOV R13, #0X10000
+        MOV R0, #0X500
+        MOV R1, #0X700
+        MOV R2, #0X400
+        MOV SP!, {R0-R2}
+        
+        BL SKALAR
+
+        MOV R1, #0X1000
+        STR R0, [R1]
+        SWI 0X123456
+        
+
+
+SKALAR  MOV SP!, {R3-R5} 
+        ADD R0, SP, #8
+        LDRH R0, {R2,R3,R1}
+        
+        MOV R0, #1      
+
+LOOP    LDR R4, [R2], #4
+        STMFD SP!, {R4}
+        BL PRETVORI
+        MUL R0,R0,R0
+
+        LDR R5, [R3], #4
+        STMFD SP!, {R5}
+        BL PRETVORI
+        MUL R0,R0,R0
+
+        ADD SP, SP, #8
+        SUB R1,#1
+        BNE LOOP
+        
+        MOV PC,LR
+
+
+PRETVORI MOV SP!, {R1,R2}
+        ADD R0, SP, #8
+        LDRH R0, {R1}
+        MOV R2, MASKA
+        
+        AND R0, R1, R2
+        ORR R0, R0, #0X00000000
+        RSB R0, R0, R0
+        STMFD SP!, {R2,R1}
+        MOV PC, LR
+        
+         
+
+
+
+
+MASKA DW 0b01111111111111111111111111111111
+
+
+ ORG OX500
+
+
+ ORG 0X700
+
+

@@ -1,0 +1,66 @@
+MAIN    SP, #0X10000
+        MOV R0, BLK1
+        STMFD SP!, {R0}
+        BL Z_I_BLK
+        ADD SP, SP, #4 ;OCISTI STOG!!!
+        MOV R1,R10
+                
+
+        MOV R0, BLK2
+        STMFD SP!, {R0}
+        BL Z_I_BLK
+        ADD SP, SP, #4
+        MOV R2, R10
+        
+        CMP R1,R2
+        MOVGT R1,
+        
+        
+        
+
+Z_I_BLK STMFD SP!, {R0-R4} ;KONTEKST
+        MOV R0, SP, #16 ;DODAJ  ;LDR?
+        LDM R0, {R1}
+        MOV R3, ZEROS
+        MOV R4, MASKA
+        MOV R10, #0
+
+LOOP    ldr R0, [R1], #4
+        CMP R0, [R4]
+        BEQ KRAJ
+        STR R0, VAL
+        BL Z_I_W
+VAL DW 0
+        LDR R2, ZEROS
+        ADD R10, R10, R2
+        B LOOP
+KRAJ    STMFD SP!, {R0,R1,R2,R3,R4}
+        MOV PC, LR
+        
+        
+Z_I_W   STMFD SP!, {LR,R0,R1,R2,R3} ;NE TU LR!
+        MOV R0, [LR], #4 ;LDR?
+        MOV R1, #1
+        MOV R2, #0
+        MOV R3, #0
+LOOP2   AND R2,R1,R0    ;MOZE SE ELEGANTNIJE
+        CMP R2 #1
+        ADDEQ R3,R3,#1
+        CMP R0, #0
+        BNE LOOP2
+        STR R2, ZEROS ;SMIJE SE!!!! :DDDD
+FIN     STMFD SP!, {LR,R0,R1,R2,R3}
+        MOV PC, LR
+               
+        
+        
+        
+        
+
+
+ZEROS DW 0
+BLK1 DW 0
+BLK2 DW 0
+A_VISE DW 0
+A_MANJE DW 0
+MASKA DW 0XFFFFFFFF

@@ -1,0 +1,169 @@
+        ORG 0x0
+        B MAIN
+
+        ORG 0x18
+        B DO_IRQ
+
+MAIN    MSR CPSR, #0b11010010 ; stog za irq i svc
+        MOV R13, #0X10000
+        MSR CPSR, #0b11010011
+        MOV R13, #0XFC00
+   
+        LDR R1, GPIO1
+        ADD R1, R1, #4
+        LDR R2 , GPIO2
+        LDR R3, RTC
+
+GPIO_IN MOV R0, #0B11100000 ;;GPIO2
+        STR R0, [R2,#8]
+
+RTC_IN  MOV R0, #5
+        STR R0, [R3,#4]
+        MOV R0, #0
+        STR R0, [R3, #0XC]
+        MOV R0, #1
+        STR R0, [R3, #0X10]
+        
+DOZVOLI MRS R0,CPSR 
+        BIC R0,R0,#0b10000000
+        MSR CPSR,R0      
+LOOP    B LOOP          
+
+DO_IRQ  STMFD SP!, {R0-R3,LR}
+        LDR R3, RTC
+        MOV R0, #0
+        STR R0, [R3,#0X8] ; brojac
+        STR R0, [R3,#0XC] ; potvrda prekida
+        
+        LDR R0, STATUS
+
+        CMP R0, #1
+        BLEQ STAT1
+        BEQ END
+
+        CMP R0, #2
+        BLEQ STAT2
+        BEQ END
+
+        CMP R0, #3
+        BLEQ STAT3
+        BEQ END
+
+        CMP R0, #4
+        BLEQ STAT4
+        BEQ END
+
+        CMP R0, #5
+        BLEQ STAT5
+        BEQ END
+
+        BL STAT6
+
+END     LDMFD SP!, {R0-R3,LR}
+        SUBS PC, LR, #4
+
+STAT1   STMFD R13!, {R0-R4,LR}
+        ADD R0, R0, #1
+        STR R0, STATUS
+        LDR R1, GPIO1
+        ADD R1, R1, #4
+        LDR R2, GPIO2
+
+        MOV R0, #0B00100000
+        STR R0, [R2, #0X0]
+
+        MOV R0, #0X0D
+        BL LCDWR
+
+        MOV R3, #0X400 
+        MOV R4, #0
+WRITE1  LDRB R0, [R3],#1
+        BL LCDWR
+        ADD R4, R4, #1
+        CMP R4, #5
+        BNE WRITE1
+        MOV R0, #0X0A
+        BL LCDWR
+        LDMFD R13!, {R0-R4,LR}
+        MOV PC, LR
+
+STAT2   STMFD R13!, {R0-R4,LR}
+        ADD R0, R0, #1
+        STR R0, STATUS
+        LDR R1, GPIO1
+        ADD R1, R1, #4
+        LDR R2, GPIO2
+
+        MOV R0, #0X0D
+        BL LCDWR
+
+        MOV R3, #0X500
+        MOV R4, #0
+WRITE2  LDRB R0, [R3], #1
+        BL LCDWR
+        ADD R4, R4, #1
+        CMP R4, #5
+        BNE WRITE2
+        MOV R0, #0X0A
+        BL LCDWR
+        LDMFD R13!, {R0-R4,LR}
+        MOV PC, LR
+
+STAT3   STMFD R13!, {R0-R1}
+        ADD R0, R0, #1
+        STR R0, STATUS
+        LDR R1, GPIO2
+        MOV R0, #0B01100000
+        STR R0, [R1,#0]
+        LDMFD R13!, {R0-R1}
+        MOV PC, LR
+
+STAT4   STMFD R13!, {R0,R1}
+        ADD R0, R0, #1
+        STR R0, STATUS
+        LDR R1, GPIO2
+        MOV R0, #0B10000000
+        STR R0, [R1, #0]
+        LDMFD R13!, {R0-R1}
+        MOV PC, LR
+
+STAT5   STMFD R13!, {R0,R1}
+        ADD R0, R0, #1
+        STR R0, STATUS
+        LDR R1, GPIO2
+        MOV R0, #0B01000000
+        STR R0, [R1, #0]
+        LDMFD R13!, {R0-R1}
+        MOV PC, LR
+
+STAT6   STMFD R13!, {R0,R1}
+        MOV R0, #1
+        STR R0, STATUS
+        LDR R1, GPIO2
+        MOV R0, #0B00100000
+        STR R0, [R1, #0]
+        LDMFD R13!, {R0-R1}
+        MOV PC, LR
+        
+
+LCDWR   STMFD R13!, {R0} ; za ispis na LCD (ctrl+v sa predavanja)
+        AND R0, R0, #0x7F 
+        STRB R0, [R1]
+        ORR R0, R0, #0x80 
+        STRB R0, [R1]
+        AND R0, R0, #0x7F 
+        STRB R0, [R1]
+        LDMFD R13!, {R0}
+        MOV PC, LR
+
+GPIO1 DW 0XFFFF0F00
+GPIO2 DW 0XFFFF0B00
+RTC DW 0XFFFF0E00
+
+ ORG 0X400
+ DB 0X48,0X4F,0X44,0X41,0X4A ;HODAJ
+
+ ORG 0X500
+ DB 0X53, 0X54, 0X41,0X4E,0X49 ;STANI
+
+STATUS DW 1

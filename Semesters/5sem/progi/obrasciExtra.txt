@@ -1,0 +1,91 @@
+================================================================ 
+
+SVE DALJE JE OPCIONALNO I BIT ĆE NAKNADNO DEFINIRANO AKO JE POTREBNO 
+
+================================================================ 
+
+ 
+
+UCxx: Recenzije 
+
+    Glavni akter: 
+
+    Ostali sudionici: 
+
+    Namjena: 
+
+    Preduvjet 
+
+    Opis osnovnog tijeka: 
+
+    a 
+
+    Moguća odstupanja: 
+
+    a 
+
+ 
+
+UCxx: Pretraga najčitanijih knjiga 
+
+    Glavni akter: 
+
+    Ostali sudionici: 
+
+    Namjena: 
+
+    Preduvjet 
+
+    Opis osnovnog tijeka: 
+
+    a 
+
+    Moguća odstupanja: 
+
+    A 
+
+ 
+
+UCxx: Pretraživanje po žanru 
+
+    Glavni akter: 
+
+    Ostali sudionici: 
+
+    Namjena: 
+
+    Preduvjet 
+
+    Opis osnovnog tijeka: 
+
+    a 
+
+    Moguća odstupanja: 
+
+    a 
+
+ 
+
+ 
+
+ 
+
+TEMPLATE: 
+
+UCxx: Ime 
+
+    Glavni akter: 
+
+    Ostali sudionici: 
+
+    Namjena: 
+
+    Preduvjet 
+
+    Opis osnovnog tijeka: 
+
+    a 
+
+    Moguća odstupanja: 
+
+    a 

@@ -1,0 +1,28 @@
+MAIN    MOV R13, #0X10000
+
+OBLOK   
+        
+        BL F_X
+        B DALJE
+X DW 100  ;neki podatak
+
+F_X     STMFD SP!,{LR,R1,R2}
+        LDR R1,[LR, #4]
+        MOV R0, #0
+        MOV R2, #0
+        
+        MUL R2, R1, R1
+DIJELI  CMP R1,#5
+        BEQ KRAJ
+        ADD R0, R0, #1
+        SUB R1,R1,#5
+        B DIJELI
+
+KRAJ    ADD R0, R0, R2
+        LDMFD SP!, {LR,R1,R2}
+        MOV PC, LR
+                   
+                
+
+ ORG 0X1000
+DW 0XFFFFFFFF,0X10325342

@@ -1,0 +1,48 @@
+MAIN    MOV SP, #0X10000
+        MOV R0, BLK
+        MOV R1, QNT
+        MOV SP!, {R0,R1}
+        BL POTP
+        ADD SP, #8 ; ZAPAMTI!!!!
+        STR R0, BN1
+        SWI 0X123456
+
+POTP    STMFD SP!, {R1-R2,LR,R11} ;KONT
+        LDR R1, [SP,#20]
+        LDR R2, [SP,#16]
+        MOV R0, #0
+
+LOOP    CMP R2, #0  ;LDR R3,[R1],#4
+        BEQ KRAJ
+        SUBS R2,R2,#1 
+        STR R1, PARAM ; STR R3,PARAM
+        BL CTO
+PARAM DW 0
+        CMP R11, #12
+        ADDHS R0,R0,#1
+        ADD R1,R1,#4
+        B LOOP
+KRAJ    LDMFD SP!, {R1-R2,LR,R11}
+        MOV PC,LR
+        
+        
+
+CTO     STMFD SP!, {R0,R1} ; KONT
+        MOV R0, [LR],#4
+        MOV R1, #0
+        MOV R11, #0
+LOOP2    MOVS R1,R2,LSR #1
+        ADDCS R11,R11,#1
+        BCC FIN
+        B LOOP
+FIN     LDMFD SP!, {R0-R1}
+        MOV PC, LR
+        
+        
+
+
+
+ADR DW 0
+BLK DW 0,0,0 ;ADR
+QNT DW 100
+BN1 DW 0

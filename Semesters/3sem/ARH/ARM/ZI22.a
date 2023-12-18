@@ -1,0 +1,79 @@
+        0RG 0
+        B MAIN
+        ORG 0X1C
+        B PREKID
+
+MAIN    MSR CPSR, #0B11010001
+        MOV R13, #0X10000
+        MSR CPSR, #0B11010011
+        MOV R13, 0XFC00
+
+GPIO    MOV R1, GPIO
+        LDR R0, 0XFF
+        STR R0, [R1,#0X8]
+        MOV R0, 0X80
+        STR R0, [R1,#C]
+
+RTC     MOV R2, RTC
+        LDR R0, KONST
+        STR R0, [R2,#4]
+        MOV R0, #0
+        STR R0, [R3, #0XC]
+        MOV R0, #1
+        STR R0, [R2,#0X10]
+        
+        
+        
+        MRS R0, CPSR
+        BIC R0,R0,#0X40
+        MSR CPSR_c,R0
+
+POSAO   MOV R4, #0X1000
+        MOV R5, #100
+        
+LOOP    LDR R0, [R1]
+        STR R0, [R4]
+        ADD R4,R4,#1
+        SUB R5, R5, 1
+        BNE LOOP
+        B POSAO
+                
+
+PREKID  STMFD SP!, {R0-R2}
+        LDR R2, RTC
+        MOV R0, #0
+        STR R0, [R3, 0X8]
+        STR R0, [R3, 0XC]
+        
+        STR R0, [R1,#4]
+        CMP R0, #0X80
+        MOVNE R0, 0X0D
+        BLNE LCDWR
+        BNE END
+
+        MOV R0, 0X0D
+        BL LCDWR
+        
+        MOV R0, 0X4F
+        BL LCDWR
+        
+        MOV R0, 0X4E
+        BL LCDWR
+
+        MOV R0, 0X0A
+        BL LCDWR        
+
+END     LDMFD SP!, {R0}
+        SUBS PC, LR, #4
+
+LCDWR   STMFD SP!, {R0}
+        AND R0, #0X7F
+        STR R0,[R1]
+        MOV R0, #0B10000000
+        STR R0,[R1]
+        MOV R0, #0
+        STR R0, [R1]
+        LDMFD R13!, {R0}
+        MOV PC, LR
+
+DW KONST 1000

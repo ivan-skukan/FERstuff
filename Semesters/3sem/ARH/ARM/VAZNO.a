@@ -1,0 +1,67 @@
+MAIN    MOV R10, LAST
+        MOV R9, #0X1000
+        MOV R0, #0X1000
+        MOV R5, #0X1000
+
+NADJI   LDR R1, [R0], #4 ;TRAZIMO KRAJ NIZA
+        CMP R1, R10
+        BNE NADJI
+        SUB R0, R0, #8 ;R0 POKAZUJE NA ADRESU PRIJE KRAJA
+
+        MOV R1, #0
+        
+LOOP    LDR R1, [R5], #4
+        CMP R1, #0
+        BGT POZ
+        BLT NEG
+
+IZLAZ   CMP R0,R9   ;OVO STIMA
+        BEQ KRAJ
+        B LOOP
+
+NEG     STR R1, [R9], #4
+        B IZLAZ
+    
+POZ     STR R1, [R0], #-4
+        B IZLAZ
+KRAJ    SWI 0X123456    
+
+
+REZ DW 0
+LAST DW 0X00000000
+GLAVNI  MOV R1, #1<12 ; adresa početka bloka
+POMICI  LDR R2, [R1], #4 ; dohvatiti podatak iz bloka
+        CMP R2, #0 ; je li to zaključni podatak 0?
+        BEQ R1_NA_KRAJ ; ako jest, to je kraj bloka
+        B POMICI
+R1_NA_KRAJ      SUB R1, R1, #8 ; postaviti R1 na zadnji podatak u bloku...
+; ...jer je postindeksiranjem pokazivač prošao zaključni podatak
+        MOV R0, #1<12 ; postaviti R0 na početak bloka
+; postupak premještanja podataka
+        TRAZI_POZ LDR R2, [R0] ; traži prvi pozitivan broj od početka bloka
+        ORRS R2, R2, R2
+        BPL TRAZI_NEG ; kad se nađe pozitivni, zaustaviti traženje
+        ADD R0, R0, #4 ; pomaknuti pokazivač na sljedeći podatak
+        CMP R0, R1 ; provjeriti je li se R0 „sudario“ s R1
+        BEQ KRAJ ; ako jest, onda je postupak gotov
+        B TRAZI_POZ ; vratiti se na provjeru sljedećeg podatka
+        TRAZI_NEG LDR R3, [R1] ; traži prvi negativan broj od kraja bloka
+        ORRS R3, R3, R3
+        BMI ZAMJENA ; ako je negativan, zaustaviti traženje
+        SUB R1, R1, #4 ; pomaknuti pokazivač na sljedeći podatak
+        CMP R0, R1 ; provjeriti je li se R0 „sudario“ s R1
+        BEQ KRAJ ; ako jest, onda je postupak gotov
+        B TRAZI_NEG ; vratiti se na provjeru sljedećeg podatka
+        ZAMJENA STR R3, [R0] ; zamijeniti mjesta negativnog i pozitivnog
+        STR R2, [R1]
+; nastavak traženja od sljedećih lokacija
+; pomaknuti pokazivače R0 i R1 uz provjeru „sudara“
+        ADD R0, R0, #4
+        CMP R0, R1
+        BEQ KRAJ
+
+        SUB R1, R1, #4
+        CMP R0, R1
+        BEQ KRAJ
+        B TRAZI_POZ ; nakon zamjene, ponoviti postupak
+        KRAJ HALT

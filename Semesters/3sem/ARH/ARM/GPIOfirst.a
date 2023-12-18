@@ -1,0 +1,37 @@
+MAIN    MOV SP, #10000
+        LDR R1, GPIO ;MOV?
+        MOV R0, #0
+        MOV R0,[R1,#8]
+        MOV R0, #0b01111111
+        STR R0, [R1, #0xC]
+        MOV R5, #1000
+        
+LOOP    MOV R0, #4
+        AND R0, [R1, #0]
+        BEQ KRAJ
+
+        MOV R0, #2
+        AND R0, [R1,#0]
+        MOVEQ R5, #1000
+
+        MOV R0, #0
+        AND R0, [R1,#0]
+        BNE LOOP
+        
+        LDR R0, [R1,#0]
+        STR R0, [R5], #4
+        B LOOP
+
+        SWI 0X123456
+ 
+ 
+GPIO DW 0XFFFF1000
+ ORG 0X1000
+ DS 5000
+
+
+        
+        
+
+
+                

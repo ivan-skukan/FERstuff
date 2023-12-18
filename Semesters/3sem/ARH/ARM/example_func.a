@@ -1,0 +1,40 @@
+      MOV   R13, #0x10000
+        
+      MOV   R5, #OPRND1
+      MOV   R6, #OPRND2  
+      MOV   R7, #BROJAC  
+      STMFD R13!, {R5,R6, R7}
+      BL    PODIJELI
+      STR   BROJAC, R0
+      STR   OSTATAK, R1
+      SWI   0x123456
+
+
+PODIJELI  STMFD R13!, {R5, R6}
+LOOP  CMP R5, R6 
+      BLT KRAJ       
+      SUB R5, R5, R6  
+      ADD R7, R7, #1 
+      B LOOP    
+KRAJ  
+      LDMFD R13!, {R5, R6, R7}
+      MOV   PC, LR
+
+OPRND1 DW    0, 0
+OPRND2 DW    0, 0   
+BROJAC DW    0
+
+; RJESENJE
+DIJELI STMFD SP!, {R2} ; spremanje konteksta i dohvat parametara
+        LDR R1, [LR],#4 ; R1 je parametar A (ujedno i ostatak)
+        LDR R2, [LR],#4 ; R2 je parametar B
+        ; gornje dvije naredbe mogu i kraće: LDMIA LR!, {R1, R2}
+        MOV R0, #0 ; Rez = 0
+LOOP    CMP R1, R2 ; while( A >= B )
+        BLO KRAJ
+        SUB R1, R1, R2 ; A = A - B
+        ADD R0, R0, #1 ; Rez = Rez + 1
+        B LOOP
+KRAJ    LDMFD SP!, {R2} ; obnova konteksta s povratkom
+        MOV PC, LR
+

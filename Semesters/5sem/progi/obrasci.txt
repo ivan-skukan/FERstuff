@@ -1,0 +1,41 @@
+OBRASCI:
+dodavanje, brisanje knjige ## //
+registracija,prijava ## //
+admin potvrduje reg # /
+pri registraciji treba izabrat kategoriju # /
+pregled osobnih podataka/pregled profila (za registrirane) # /
+promjena podataka # /
+brisanje podataka/racuna # /
+//opcenito upravljanje podacima (koji kurac je ovo??)
+pregled tuđih podataka(pretrazivanje po ponuditelju?) # /
+nereg trazi stranog izdavaca, preko izdavaca, da prevede knjigu (2 obrasca) ## //
+======================================
+======================================
+mijenjanje podatka o objavi# /
+pregled objave?#
+recenzije? najcitanije? ##?
+pretrazivanje knjiga koje se dijeli na kategorije ispod? #
+
+pretrazivanje po nazivu/autoru/godini/izadnju/izdavacu/kategoriji izdavaca/zanr/ISBN/br. izdanja(?)/ocuvanost/opis
+/oznaka vrste->izbornik (za sad grupiraj kao jedan obrazac) #
+pretrazivanje po lokaciji#
+
+PROVJERI: korisnik bira izmedju registracije ili kupovine
+dodavanje kategorija i mozda slicnih stvari(ako postoje)
+admin gluposti
+######################
+######################
+
+AKTERI:
+Korisnik 
+ne reg (klijent)
+reg (ponuditelj)
+izdavac,antikvarijat,preprodavac
+strani izdavac
+BP
+Administrator
+
+DIJAGRAMI:
+jedan sa korisnikom koji se logina itd.?
+
+

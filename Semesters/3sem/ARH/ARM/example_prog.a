@@ -1,0 +1,12 @@
+      LDR   R3, OP1
+      LDR   R4, OP2
+
+      ADD   R0, R3, R4
+      STR   R0, REZ
+
+      SWI   0x123456
+
+
+OP1   DW    15
+OP2   DW    3
+REZ   DW    0

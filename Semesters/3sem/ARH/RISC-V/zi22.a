@@ -1,0 +1,62 @@
+main    lui sp, %hi(0x10000)
+        addi sp, sp, %lo(0x10000)
+
+        lui s0, %hi(0x500)
+        addi s0, s0, %lo(0x500)
+        
+        lui s1, %hi(0x800)
+        addi s1, s0, %lo(0x800)
+
+        lui t0, %hi(konst)
+        addi t0, t0, %lo(konst)
+
+        lw t0, 0(t0)
+        
+loop    lw a0, 0(s0)
+        beq a0,t0,end
+
+        addi sp, sp, -4
+        sw a0, 0(sp)
+        jal ra, potp
+        addi sp, sp, 4
+
+        sw a0, 0(s0)
+        addi s0, s0, 4
+        jal x0, loop
+
+end     halt
+        
+
+potp    addi sp, sp, -4
+        sw ra, 0(sp)
+        
+        lw a0, 4(sp)
+        lw a1, 4(sp)
+
+        andi a5,a0, 0x80
+        andi a0,a0, 0x7f
+
+        jal ra, square
+
+        add a0, a0, a1
+cont    addi a0, a0, 128
+       
+        lw ra, 0(sp)
+        addi sp, sp, 4
+        jalr x0, 0(ra) 
+
+square  addi sp, sp, -4
+        sw a1, 0(sp)
+
+        addi a1, a0, 0
+
+sqloop  add a0,a0,a0
+        addi a1,a1,-1
+        bne a1,x0,sqloop
+
+        lw a1, 0(sp)
+        addi sp, sp, 4
+        jalr x0, 0(ra)
+              
+konst dw 0xffffffff        
+        

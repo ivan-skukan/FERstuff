@@ -1,0 +1,68 @@
+        ORG 0
+        B GLAVNI
+
+        ORG 0X1C ;FIQ
+        B PREKID
+
+GLAVNI  MSR CPSR, #0B11010001
+        MOV R13, #0X10000
+        MSR CPSR, #0B11010011
+        MOV R13, #0XFC00
+
+        LDR R0, RTC
+        MOV R3, #6000 ;trebalo bi ic preko registra
+        STR R3, [R0,#C]
+        MOV R3, #1
+        STR R3, [R0,#10]
+        LDR R1, GPIO0
+        MOV R0, #0XFF
+        STR R3, [R1,#8]
+        MOV R1, #0xFF ; bitovi 0-3 su ulazni
+        STR R1, [R0, #0x0C]
+
+        MRS R0, CPSR
+        BIC R0,R0,#0X40
+        MSR CPSR_c, RO
+
+        BL ISPIS
+
+POSTAV  LDR R1, [R0, #4]
+        ANDS R1,R1,#0X0F
+        BEQ POOL
+TEST    LSR R1,R1,#1
+        BCS PLHR
+
+        LSR R1,R1,#1
+        BCS MINHR
+
+MIN     LSR R1,R1,#1
+        BCS PLMIN
+
+        LSR R1,R1,#1
+        BCS MINMIN
+        B ENDTEST
+        
+PLHR    LDR R2, HRS
+        LDR R4, [R2]
+        ADD R2,R2,1
+        STR R2, [R4]
+        B MIN   
+
+        ;ISTO ZA MINHR I MINUTE
+
+POSAO   B POSAO        
+        
+        
+
+ISPIS   
+
+
+GPIO DW 0XFFFF00F0
+RTC DW 0XFFFF2000
+
+KONST DW 6000
+MINS DW 0
+HRS DW 0        
+        
+        
+        

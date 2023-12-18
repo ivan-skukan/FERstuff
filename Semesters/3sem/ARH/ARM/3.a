@@ -1,0 +1,41 @@
+MAIN    MOV SP, #0X10000
+        MOV R1, #0X1000
+        MOV R2, #0X2000
+        MOV R3, #256
+
+LOOP    LDR R4, [R1], #2
+        STMFD SP!, {R4}
+        BL POTP
+        ADD SP, SP, #4
+        STR R0, [R2], #4
+        SUBS R3,R3,#1
+        BNE LOOP
+        SWI 0X123456
+        
+POTP    STMFD SP!, {LR,R1,R2}
+        LDR R0, [SP,#12]
+        MOV R1, MASKA
+        ORR R0, R0, R1
+        ADD R0, R0, #7
+        STR R0, PARAM
+        BL KUB
+PARAM DW 0
+        MOV R2, KON
+        MUL R0, R2, R0
+        ADD R0, R0, #0X128
+        LDMFD SP!, {LR,R1,R2}
+        MOV PC, LR
+
+KUB     STMFD SP!, {R1}
+        MOV R0, [LR], #4
+        MOV R1, R0
+        MUL R0,R1,R1
+        MUL R0,R1,R0
+        LDMFD SP!, {R1}    
+        MOV PC, LR
+
+
+
+ ORG 0X7008
+KON DW  0X80000036
+MASKA DW 0X00000000

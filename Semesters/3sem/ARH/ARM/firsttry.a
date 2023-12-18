@@ -1,0 +1,29 @@
+MAIN MOV SP, #0x10000
+     MOV R0, #STRING
+     STR R0, STR1
+     MOV R0, #0x61
+     STR R0, CH1      
+
+        BL STRCHR
+
+STRING DSTR ”fgafasdf”
+STR1 DW 0
+CH1 DB 0  
+REZ DW 0    
+
+STRCHR  STRMFD SP, {R0-R2}
+        LDR R0, STR1
+        LDRB R1, CH1
+BEGIN   LDRB R2, [R0]
+        CMP R2, #0
+        BEQ VAN
+        CMP R0, R1
+        BEQ VAN
+        ADD R0,R0,#1
+        B BEGIN
+
+VAN     STR R0, REZ
+        LDRMFD SP, {R0-R2}
+        
+        
+        

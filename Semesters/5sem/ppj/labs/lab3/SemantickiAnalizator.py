@@ -5,7 +5,6 @@ import sys
 stack = []
 log = []
 
-
 def checkVar(var):
     print("checking")
     for map in stack:
@@ -98,6 +97,7 @@ while i < len(code):
                 else:
                     print(f"err {i+1} {part}")    
                     exit(0)
+    i = i + 1                
 
 
 print(log)

@@ -1,60 +1,76 @@
 import sys
 
-#treba odvojit varijable od operatora!!!!
-
 stack = []
 log = []
 
+def logPrint():
+    for line in log:
+        print(line)
+
 def checkVar(var):
-    print("checking")
-    for map in stack:
-        print(map)
+    for map in reversed(stack):
         if var in (map.keys()):
             return map,True
-    return False    
+    return None,False    
 
 def forLoop(i:int,code:list):
-    print("forLoop ",i+1)
     k=1
     forVars = {}
     parts = code[i].split(" ")
-
-    stack.append(forVars)
-
-    #obradi ZA liniju
     forVars[parts[1]] = i+1
 
+    for part in parts[3::]:
+        cond = checkVar(part)[1] and part[0].isalpha() 
+        if part == parts[1]:
+            logPrint()
+            print(f"err {i+1} {part}")    
+            exit(0)   
+        if cond:
+            log.append(f"{i+1} {checkVar(part)[0][part]} {part}")
+        elif not checkVar(part)[1] and part[0].isalpha() and part not in ("od","do"):
+            logPrint()
+            print(f"err {i+1} {part}")    
+            exit(0)    
     i = i + 1
-    print(forVars)
+    stack.append(forVars)
+    #print(stack)
 
     while code[i] != "az":
+        toAdd = False  
+        add = ()
         parts = code[i].split(" ")
         if parts[0] == "za":
-            i = i + forLoop(i,code)
+            increment = forLoop(i,code)
+            i = i + increment
+            k = k + increment
             continue
         else:
-            if not (checkVar(parts[0])):
-                forVars[parts[0]] = i+1
-            for j,part in enumerate(parts[2::]): #bolje od 3
+            if not (checkVar(parts[0])[1]):
+                #forVars[parts[0]] = i+1
+                toAdd = True
+                add = (parts[0],i+1)
+            for j,part in enumerate(parts[2::]):
                 if part[0].isalpha():
                     theMap,cond = checkVar(part)
                     if cond:
                         log.append(f"{i+1} {theMap[part]} {part}")
                     else:
+                        logPrint()
                         print(f"err {i+1} {part}")    
                         exit(0)
+        if toAdd:
+            forVars[add[0]] = add[1]
+            toAdd = False                  
         i = i + 1
-        k = k + 1  
-        #print("increment k",k)              
+        k = k + 1
+    #print("removing", stack[-1]," line ",i+1)             
     stack.pop() 
-    #print(k)
-    return k   
+    return k+1 
 
-defVar = {} #kljuc var, value redak def
+defVar = {} 
 grammar = ["$","<program>","<lista_naredbi>","<naredba>","<naredba_pridruzivanja>","<za_petlja>","<E>","<E_lista>","<T>","<T_lista>","<P>"]
 code = [""]
 string = ""
-
 stack.append(defVar)
 
 for line in sys.stdin:
@@ -63,46 +79,46 @@ for line in sys.stdin:
     elif line.strip() in (grammar):
         continue
     line = line.strip()
-    #print(line)
+    
     thing = line.split(" ")[2]
     row = int(line.split(" ")[1])
     if row > len(code):
         code.append(thing)
         string = string + "\n" + thing
-        #print(code[row-1])
     else:
         code[row-1] = code[row-1] + " " + thing
         string = string + " " + thing
-        #print(code[row-1])   
 
 string = string[1::]
 code[0] = code[0][1::]
-
-#print(string)
 i = 0
+
+#print(string,"\n")
+
 while i < len(code):
-    print(i+1)
     parts = code[i].split(" ")
+    toAdd = False
+    add = ()
 
     if parts[0] == "za":
         i = i + forLoop(i,code)
         continue
     else:
         if not (parts[0] in (defVar.keys())):
-            defVar[parts[0]] = i+1
+            #defVar[parts[0]] = i+1
+            toAdd = True
+            add = (parts[0],i+1)
         for j,part in enumerate(parts[2::]): 
             if part[0].isalpha():
                 if part in (defVar.keys()):
                     log.append(f"{i+1} {defVar[part]} {part}")
                 else:
+                    logPrint()
                     print(f"err {i+1} {part}")    
                     exit(0)
+        if toAdd:
+            defVar[add[0]] = add[1]
+            toAdd = False            
     i = i + 1                
 
-
-print(log)
-#print(defVar.keys())
-#print(code)
-#print(string[1::])
-# br_red_kor br_red_def lek_jed
-# err br_red lek_jed
+logPrint()  

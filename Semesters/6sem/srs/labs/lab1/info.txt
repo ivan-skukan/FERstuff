@@ -31,7 +31,8 @@ Decrypts and displays the password for www.fer.hr.
 Error Case: $ ./tajnik get wrongPasswrd www.fer.hr
 Fails to decrypt or integrity check fails, indicating the wrong master password.
 This approach ensures that the master password is never stored or directly hashed, increasing security. 
-The security of this tool relies heavily on the robustness of the cryptographic algorithms used and the secure implementation of the key derivation, encryption, and decryption processes.
+The security of this tool relies heavily on the robustness of the cryptographic algorithms used and 
+the secure implementation of the key derivation, encryption, and decryption processes.
 =======================================================================================
 =======================================================================================
 • Koristiti provjerena programska ostvarenja algoritama

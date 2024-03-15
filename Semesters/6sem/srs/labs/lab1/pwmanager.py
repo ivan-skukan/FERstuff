@@ -2,11 +2,16 @@ import os
 import sys
 from Crypto.Cipher import AES
 from Crypto import Random
-from Crypto.Hash import SHA256, HMAC, SHA1
+from Crypto.Hash import SHA256, HMAC
+from Crypto.Protocol.KDF import PBKDF2
 
 #ideja: masterpassword za kdf kljuc?
 #kako cu cuvati masterpassword?
 #cemu moze pristupiti napadac?
+#sha za hashiranje
+#mac za integritet
+#pbkdf2 za kljucž
+#iv?
 
 def help():
     print("\nCommands:") 
@@ -51,8 +56,12 @@ def main():
                 print("Invalid number of arguments.")
                 continue
             with open(path, 'r+') as file:
-                mp = file.readline().split(":")[1].strip() #placeholder, mp se ne sprema 
-                #provjeri da li je vec inicijaliziran
+                mp = args[1] #master password
+                #provjeri da li je vec inicijaliziran!!!!
+                #generate 
+                salt = Random.get_random_bytes(16)
+                iv = Random.get_random_bytes(AES.block_size)
+                key = PBKDF2(mp, salt, dkLen=32)
             
 #=========================================================================            
     print("Exiting the program.")

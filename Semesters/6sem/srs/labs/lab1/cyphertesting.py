@@ -1,16 +1,18 @@
 from Crypto.Cipher import AES
-from Crypto.Random import get_random_bytes
+from Crypto import Random
+from Crypto.Hash import SHA256, HMAC, SHA1
 
 key = b'0123456789012345'
 
-iv = get_random_bytes(AES.block_size)  
+iv = Random.get_random_bytes(AES.block_size) 
+
 aes = AES.new(key, AES.MODE_CFB, iv=iv)
 
-msg = b'This is a secret message'
-
+#msg = b'This is a secret message'
+msg = input("Enter a message: ").encode('utf-8')
 ciphertext = aes.encrypt(msg)
 
-print(ciphertext)
+#print(ciphertext.decode('utf-8')) #whatevuhhhhh
 
 aesdecrypt = AES.new(key, AES.MODE_CFB, iv=iv)
 

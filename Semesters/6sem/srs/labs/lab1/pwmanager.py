@@ -6,10 +6,19 @@ from Crypto import Random
 from Crypto.Hash import SHA256, HMAC
 from Crypto.Protocol.KDF import PBKDF2
 import base64
+import string
+from Crypto.Random import random
 #cemu moze pristupiti napadac?
 #sha za hashiranje
 #mac za integritet
 #pbkdf2 za kljuc
+
+def get_random_string(length):
+    # Combine all the characters you want to choose from
+    letters_and_digits = string.ascii_letters + string.digits
+    # Use random.choices() to select characters from the combined string
+    result_str = ''.join(random.choice(letters_and_digits) for _ in range(length))
+    return result_str
 
 def initIVSalt():
     iv = Random.get_random_bytes(AES.block_size)
@@ -44,7 +53,8 @@ def main():
 
             #generiraj stvari idk
         iv, salt = initIVSalt()
-        padding = Random.get_random_bytes(32)
+        #padding = Random.get_random_bytes(32)
+        padding = get_random_string(32).encode('utf-8')
         key = PBKDF2(mp, salt, dkLen=32, count=100000, prf=lambda p,s: HMAC.new(p,s,SHA256).digest())
         aes = AES.new(key, AES.MODE_GCM, nonce=iv)
 
@@ -75,7 +85,7 @@ def main():
         password = args[3]
 
         with open(path, 'r') as file:
-            bigstring = file.read().split('|')
+            bigstring = file.read()
             #bigstring = base64.b64decode(bigstring).decode('utf-8')
             iv = bigstring.split('|')[0]
             iv = base64.b64decode(iv) #i think
@@ -102,25 +112,28 @@ def main():
             
             decrypted = decrypted.decode('utf-8')
 
-            if site in decrypted:
+            if site in decrypted: #treba popravit za slicne passworde i stranice
                 start = decrypted.find(site) + len(site) + 1
                 end = decrypted.find('|', start)
                 oldpass = decrypted[start:end]
                 decrypted = decrypted.replace(oldpass, password)
             else:
                 decrypted += "|" + site + "," + password
-            encrypted, tag = aes.encrypt_and_digest(decrypted.encode('utf-8'))
+            
+            print(decrypted)
             #base64enc = base64.b64encode(encrypted).decode('utf-8')
             #base64tag = base64.b64encode(tag).decode('utf-8')
             #base64line = base64.b64encode(b'|').decode('utf-8')
-
             iv, salt = initIVSalt()
+            key = PBKDF2(mp, salt, dkLen=32, count=100000, prf=lambda p,s: HMAC.new(p,s,SHA256).digest())
+            aes = AES.new(key, AES.MODE_GCM, nonce=iv)
+            encrypted, tag = aes.encrypt_and_digest(decrypted.encode('utf-8'))
             #iv = base64.b64encode(b"iv:"+iv).decode('utf-8')
             #salt = base64.b64encode(b"salt:"+salt+b"|").decode('utf-8')
 
             #bigstring = iv + base64line + salt + base64enc + base64line + base64tag
-            bigstring = base64.b64encode(iv).decode('utf-8') + '|' + base64.b64encode(salt).decode('utf-8') + base64.b64encode(encrypted).decode('utf-8') + '|' + base64.b64encode(tag).decode('utf-8')
-            bigstring = base64.b64encode(bigstring.encode('utf-8')).decode('utf-8')
+            bigstring = base64.b64encode(iv).decode('utf-8') + '|' + base64.b64encode(salt).decode('utf-8') + '|' + base64.b64encode(encrypted).decode('utf-8') + '|' + base64.b64encode(tag).decode('utf-8')
+            #bigstring = base64.b64encode(bigstring.encode('utf-8')).decode('utf-8')
 
             with open(path, 'w') as file:
                 file.write(bigstring)
@@ -132,16 +145,15 @@ def main():
         mp = args[1]
         site = args[2]
 
-        with open(path,'r'):
+        with open(path,'r') as file:
             bigstring = file.read()
-            iv = bigstring.split('|')[0].split(':')[1]
-            salt = bigstring.split('|')[1].split(':')[1]
-            encrypted = bigstring.split('|')[2]
-            tag = bigstring.split('|')[3]
-
+            iv = bigstring.split('|')[0]
             iv = base64.b64decode(iv)
+            salt = bigstring.split('|')[1]
             salt = base64.b64decode(salt)
+            encrypted = bigstring.split('|')[2]
             encrypted = base64.b64decode(encrypted)
+            tag = bigstring.split('|')[3]
             tag = base64.b64decode(tag)
 
             key = PBKDF2(mp, salt, dkLen=32, count=100000, prf=lambda p,s: HMAC.new(p,s,SHA256).digest())
@@ -154,10 +166,13 @@ def main():
                 return    
             
             decrypted = decrypted.decode('utf-8')
+            print(decrypted)
 
             if site in decrypted:
                 start = decrypted.find(site) + len(site) + 1
                 end = decrypted.find('|', start)
+                if end == -1:
+                    end = len(decrypted)    
                 password = decrypted[start:end]
                 print(password)
             else:

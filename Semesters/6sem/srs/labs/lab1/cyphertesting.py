@@ -44,7 +44,7 @@ aesdecrypt = AES.new(key, AES.MODE_GCM, nonce=iv)
 
 decrypt = aesdecrypt.decrypt_and_verify(ciphertext, tag)
 
-#print(decrypt.decode('utf-8'))
+print(decrypt.decode('utf-8'))
 
 with open('test.txt', 'w') as file:
     #file.write(ciphertext.)

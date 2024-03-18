@@ -35,6 +35,7 @@ def main():
     for line in lines[2:]:
         parent_state = line.split(':')[0]
         neighbour_info = line.split(':')[1]
+        
 
 
 if __name__ == "__main__":

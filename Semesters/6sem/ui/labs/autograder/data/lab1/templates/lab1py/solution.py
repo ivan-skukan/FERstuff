@@ -51,7 +51,7 @@ class Node:
     def cost(self, cost):
         self._cost = cost
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other):
         if isinstance(other, Node):
             return self._state == other._state
         return False
@@ -70,30 +70,31 @@ def A_star(start: Node, nodes: dict, goal: list):
     visited = set()
 
     while open:
-        currentCost, node = heapq.heappop(open)
+        currentCost, node = heapq.heappop(open) #currentCost je kriv
         open_set.remove(node._state)
         visited.add(node._state)
 
         if node._state in goal:
             return node, len(visited)
 
-        neighbours = []
         for neighbour in node.neighbours.keys():
             neighbourNode = nodes[neighbour]
             price = node.neighbours[neighbour]
-            if (neighbour in visited or neighbour in open):
-                if neighbourNode._cost > (currentCost + price) or neighbourNode._cost == 0:
-                    #neighbourNode._cost = currentCost + price
-                    if neighbour in open_set:
-                        open.remove((neighbourNode._cost + neighbourNode._heur, neighbour))
-                        open_set.remove(neighbour)
-                    if neighbour in visited:
-                        visited.remove(neighbour)  
+            if (neighbour in visited or neighbour in open_set):
+                if neighbourNode._cost > (currentCost + price) or (neighbourNode._cost == 0 and neighbourNode._state != start._state):
+                    oldCost = neighbourNode._cost
+                    neighbourNode._cost = currentCost + price
+                    neighbourNode._parent = node
+                    #if neighbour in open_set:
+                     #   open.remove((oldCost + neighbourNode._heur, neighbourNode))
+                      #  open_set.remove(neighbour)
+                    #if neighbour in visited:
+                     #   visited.remove(neighbour)  
                 else:
                     continue
-            #else?    
-            neighbourNode._parent = node
-            neighbourNode._cost = currentCost + price
+            else:   
+                neighbourNode._parent = node
+                neighbourNode._cost = currentCost + price
             heapq.heappush(open, (currentCost + price + neighbourNode._heur, neighbourNode))
             open_set.add(neighbourNode._state)
     return False, 0
@@ -124,8 +125,9 @@ def UCS(start: Node, nodes: list, goal: list):
             price = node.neighbours[neighbour]
             #if neighbourNode._state not in open_set and neighbourNode._state not in visited:
             if neighbourNode._state not in visited:
-                neighbourNode._parent = node
+                
                 if neighbourNode._cost > currentCost + price or neighbourNode._cost == 0: #if cost is 0, it means it was not visited yet, else if its in queue check if new cost is lower
+                    neighbourNode._parent = node
                     neighbourNode._cost = currentCost + price
                 #neighbours.append((neighbourNode, currentCost + price))
                 heapq.heappush(open, (currentCost + price, neighbourNode))
@@ -226,9 +228,11 @@ def main():
     #alg = args[1]
     #file = args[2]
     #heur = args[3]
-    alg = "UCS"
-    file = "ai.txt"
-    heur = None
+    alg = "A-STAR"
+    file = "istra.txt"
+    heur = "istra_pessimistic_heuristic.txt"
+    #istra_pessimistic_heuristic.txt
+    #za ostale su putevi tocni ali cijene krive
 
     path = '../../files/'
 
@@ -241,10 +245,15 @@ def main():
         print("File not found, exiting")
         return
 
+    try:
+        parse_heur(heur, nodes)
+    except FileNotFoundError:
+        print("Heuristic file not found, exiting")
+        return
+    
     success = "[FOUND_SOLUTION]: "
     path = ""
     pathLength = 1
-    print("start")
 
     if alg == "BFS":
         final, statesVisited = BFS(start, nodes, goal)
@@ -265,15 +274,11 @@ def main():
             print(success)
             return
 
-        print(success)
-        print("[STATES_VISITED]: " + str(statesVisited))
-        print("[PATH_LENGTH]: " +  str(pathLength))
-        print("[TOTAL_COST]: -")
-        print("[PATH]: ",path)
+        print_stuff(alg, success, statesVisited, pathLength, 0, path)
 #################################################################
     if alg == "UCS":
-        print("# UCS")
         final, statesVisited = UCS(start, nodes, goal)
+        print("# UCS")
         if final:
             cost = final.cost
             path = final._state + path
@@ -289,11 +294,29 @@ def main():
             success += "no"
             print(success)
             return
-        print(success)
-        print("[STATES_VISITED]: " + str(statesVisited))
-        print("[PATH_LENGTH]: " +  str(pathLength))
-        print("[TOTAL_COST]: ", cost)
-        print("[PATH]: ",path)
+        
+        print_stuff(alg, success, statesVisited, pathLength, cost, path)
+
+    if alg == "A-STAR":
+        final, statesVisited = A_star(start, nodes, goal)
+        print("# A*")
+        if final:
+            cost = final.cost
+            path = final._state + path
+            success += "yes"
+            
+            while final:
+                #print(final._state)
+                final = final._parent
+                if final:
+                    path = final._state + " => " +  path
+                    pathLength += 1
+        else:
+            success += "no"
+            print(success)
+            return
+        
+        print_stuff(alg, success, statesVisited, pathLength, cost, path)
 
 
 

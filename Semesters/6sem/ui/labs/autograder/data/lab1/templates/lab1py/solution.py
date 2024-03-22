@@ -65,11 +65,13 @@ class Node:
 #os.chdir(os.path.dirname(os.path.abspath(__file__))) #privremeno, mozda izbrisem
 
 def A_star(start: Node, nodes: dict, goal: list):
-    open = [(0, start)]
+    open = [(start._heur, start)]
+    open_set = set([start._state]) #dodat skip list? micanje iz heapa nije efikasno
     visited = set()
 
     while open:
         currentCost, node = heapq.heappop(open)
+        open_set.remove(node._state)
         visited.add(node._state)
 
         if node._state in goal:
@@ -80,15 +82,20 @@ def A_star(start: Node, nodes: dict, goal: list):
             neighbourNode = nodes[neighbour]
             price = node.neighbours[neighbour]
             if (neighbour in visited or neighbour in open):
-                if neighbourNode._cost > (currentCost + price):
+                if neighbourNode._cost > (currentCost + price) or neighbourNode._cost == 0:
                     #neighbourNode._cost = currentCost + price
-                    if neighbour in open:
-                        open.remove(neighbour)
+                    if neighbour in open_set:
+                        open.remove((neighbourNode._cost + neighbourNode._heur, neighbour))
+                        open_set.remove(neighbour)
                     if neighbour in visited:
                         visited.remove(neighbour)  
                 else:
                     continue
-            pass
+            #else?    
+            neighbourNode._parent = node
+            neighbourNode._cost = currentCost + price
+            heapq.heappush(open, (currentCost + price + neighbourNode._heur, neighbourNode))
+            open_set.add(neighbourNode._state)
     return False, 0
 
 #UCS algorithm
@@ -124,7 +131,7 @@ def UCS(start: Node, nodes: list, goal: list):
                 heapq.heappush(open, (currentCost + price, neighbourNode))
                 #open_set.add(neighbourNode._state)
         neighbours.sort(key=lambda x: x[1])
-        open.extend(neighbours)
+        #open.extend(neighbours)
         #print(node._state, currentCost)
 
     return False, 0
@@ -135,12 +142,12 @@ def BFS(start: Node,nodes: dict,goal: list):
     #open = [start]
     open = deque([start])
     #additional set for quicker access to elements
-    #open_set = set([start._state])
+    open_set = set([start._state])
     visited = set()
 
     while open:
         node = open.popleft()
-        #open_set.remove(node._state)
+        open_set.remove(node._state)
         visited.add(node._state)
         if node._state in goal:
             return node, len(visited)
@@ -150,11 +157,11 @@ def BFS(start: Node,nodes: dict,goal: list):
             #print(neighbour[0]._state)
             neighbourNode = nodes[neighbour]
             #if neighbourNode._state not in open_set and neighbourNode._state not in visited:
-            if neighbourNode._state not in visited:
+            if neighbourNode._state not in visited and neighbourNode._state not in open_set:
                 neighbourNode._parent = node
                 neighbours.append(neighbourNode)
-                #open_set.add(neighbourNode._state)
-        #neighbours.sort(key=lambda x: x) #treba li?
+                open_set.add(neighbourNode._state)
+        neighbours.sort(key=lambda x: x) #treba li?
         open.extend(neighbours)
 
 
@@ -194,13 +201,33 @@ def parse_file(file_path):
 
     return start, nodes_dict, goal
 
+#function to parse the heuristic file
+def parse_heur(file_path, nodes):
+    with open(file_path, 'r', encoding='utf-8') as state_file:
+        for line in state_file:
+            parts = line.strip().split(':')
+            state = parts[0]
+            node = nodes[state]
+            node._heur = float(parts[1][1:])
+
+#function to print the results
+def print_stuff(alg, success, statesVisited, pathLength, cost, path):
+    print(success)
+    print("[STATES_VISITED]: " + str(statesVisited))
+    print("[PATH_LENGTH]: " +  str(pathLength))
+    if alg == "BFS":
+        print("[TOTAL_COST]: -")
+    else:
+        print("[TOTAL_COST]: ", cost)
+    print("[PATH]: ",path)
+
 def main():
     #args = sys.argv[1:]
     #alg = args[1]
     #file = args[2]
     #heur = args[3]
     alg = "UCS"
-    file = "test_case_1.txt"
+    file = "ai.txt"
     heur = None
 
     path = '../../files/'

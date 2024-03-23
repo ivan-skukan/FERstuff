@@ -70,7 +70,7 @@ def A_star(start: Node, nodes: dict, goal: list):
     visited = set()
 
     while open:
-        currentCost, node = heapq.heappop(open) #currentCost je kriv
+        estimatedCost, node = heapq.heappop(open) #currentCost je kriv
         open_set.remove(node._state)
         visited.add(node._state)
 
@@ -81,21 +81,21 @@ def A_star(start: Node, nodes: dict, goal: list):
             neighbourNode = nodes[neighbour]
             price = node.neighbours[neighbour]
             if (neighbour in visited or neighbour in open_set):
-                if neighbourNode._cost > (currentCost + price) or (neighbourNode._cost == 0 and neighbourNode._state != start._state):
+                if neighbourNode._cost > (node._cost + price) or (neighbourNode._cost == 0 and neighbourNode._state != start._state):
                     oldCost = neighbourNode._cost
-                    neighbourNode._cost = currentCost + price
+                    neighbourNode._cost = node._cost + price
                     neighbourNode._parent = node
-                    #if neighbour in open_set:
-                     #   open.remove((oldCost + neighbourNode._heur, neighbourNode))
-                      #  open_set.remove(neighbour)
-                    #if neighbour in visited:
-                     #   visited.remove(neighbour)  
-                else:
-                    continue
+                    if neighbour in open_set:
+                        open.remove((oldCost + neighbourNode._heur, neighbourNode))
+                        
+                        #open_set.remove(neighbour)
+                    if neighbour in visited:
+                        visited.remove(neighbour)  
+                    heapq.heappush(open, (neighbourNode._cost + neighbourNode._heur, neighbourNode))    
             else:   
                 neighbourNode._parent = node
-                neighbourNode._cost = currentCost + price
-            heapq.heappush(open, (currentCost + price + neighbourNode._heur, neighbourNode))
+                neighbourNode._cost = node._cost + price
+                heapq.heappush(open, (node._cost + price + neighbourNode._heur, neighbourNode))
             open_set.add(neighbourNode._state)
     return False, 0
 
@@ -104,7 +104,7 @@ def A_star(start: Node, nodes: dict, goal: list):
 #some used structures:
 #heapq for fast access to data
 #set for quick addition
-def UCS(start: Node, nodes: list, goal: list):
+def UCS(start: Node, nodes: dict, goal: list):
     open = [(0, start)]#tuples?
     #open_set = set([start._state])
     visited = set()
@@ -141,9 +141,7 @@ def UCS(start: Node, nodes: list, goal: list):
 #Breadth first search algorithm
 #source: lectures and slides
 def BFS(start: Node,nodes: dict,goal: list):
-    #open = [start]
     open = deque([start])
-    #additional set for quicker access to elements
     open_set = set([start._state])
     visited = set()
 
@@ -155,10 +153,7 @@ def BFS(start: Node,nodes: dict,goal: list):
             return node, len(visited)
         neighbours = []
         for neighbour in node.neighbours.keys():
-            #print(neighbour)
-            #print(neighbour[0]._state)
             neighbourNode = nodes[neighbour]
-            #if neighbourNode._state not in open_set and neighbourNode._state not in visited:
             if neighbourNode._state not in visited and neighbourNode._state not in open_set:
                 neighbourNode._parent = node
                 neighbours.append(neighbourNode)
@@ -230,7 +225,7 @@ def main():
     #heur = args[3]
     alg = "A-STAR"
     file = "istra.txt"
-    heur = "istra_pessimistic_heuristic.txt"
+    heur = "istra_heuristic.txt"
     #istra_pessimistic_heuristic.txt
     #za ostale su putevi tocni ali cijene krive
 

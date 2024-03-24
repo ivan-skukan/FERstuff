@@ -1,4 +1,3 @@
-import sys
 import os
 import heapq
 from collections import deque
@@ -8,7 +7,7 @@ class Node:
         self._state = state
         self._neighbours = {}
         self._parent = None
-        self._heur = None
+        self._heur = 0
         self._cost = 0
     
     @property
@@ -125,7 +124,6 @@ def UCS(start: Node, nodes: dict, goal: list):
             price = node.neighbours[neighbour]
             #if neighbourNode._state not in open_set and neighbourNode._state not in visited:
             if neighbourNode._state not in visited:
-                
                 if neighbourNode._cost > currentCost + price or neighbourNode._cost == 0: #if cost is 0, it means it was not visited yet, else if its in queue check if new cost is lower
                     neighbourNode._parent = node
                     neighbourNode._cost = currentCost + price
@@ -223,9 +221,11 @@ def main():
     #alg = args[1]
     #file = args[2]
     #heur = args[3]
+    #check = args[4]
     alg = "A-STAR"
-    file = "istra.txt"
-    heur = "istra_heuristic.txt"
+    file = "ai.txt"
+    heur = "ai_fail.txt"
+    check = "HEURISTIC-OPTIMISTIC"
     #istra_pessimistic_heuristic.txt
     #za ostale su putevi tocni ali cijene krive
 
@@ -270,7 +270,7 @@ def main():
             return
 
         print_stuff(alg, success, statesVisited, pathLength, 0, path)
-#################################################################
+
     if alg == "UCS":
         final, statesVisited = UCS(start, nodes, goal)
         print("# UCS")
@@ -313,7 +313,41 @@ def main():
         
         print_stuff(alg, success, statesVisited, pathLength, cost, path)
 
+        if check == "HEURISTIC-OPTIMISTIC":
+            print("# HEURISTIC-OPTIMISTIC")
+            opt_condition = True
+            for node in nodes.values():
+                node._cost = 0.0
+                node._parent = None
+                goal_node, _ = A_star(node, nodes, goal) #a_star tocan, ucs nije, bfs logicno nije
+                
+                if node._heur <= goal_node._cost:
+                    print("[CONDITION]: [OK] h(" + node._state + ") <= h*: " + str(node._heur) + " <= " + str(goal_node._cost))
+                else:
+                    opt_condition = False
+                    print("[CONDITION]: [ERR] h(" + node._state + ") <= h*:" + str(node._heur) + " <= " + str(goal_node._cost))
+            if opt_condition:
+                print("[CONCLUSION]: Heuristic is optimistic.")
+            else:
+                print("[CONCLUSION]: Heuristic is not optimistic.")   
 
+        if check == "HEURISTIC-CONSISTENT":
+            print("# HEURISTIC-CONSISTENT")
+            opt_condition = True
+            for node in nodes.values():
+                for neighbour in node._neighbours:
+                    neighbourNode = nodes[neighbour]
+                    cost = node._neighbours[neighbour]
+                    if node._heur <= (neighbourNode._heur + cost):
+                        print("[CONDITION]: [OK] h(" + node._state + ") <= h(" + neighbour   + ") + c: " + str(node._heur) + " <= " + str(neighbourNode._heur) + " + " + str(cost))
+                    else:
+                        opt_condition = False
+                        print("[CONDITION]: [ERR] h(" + node._state + ") <= h(" + neighbour   + ") + c: " + str(node._heur) + " <= " + str(neighbourNode._heur) + " + " + str(cost))
+
+            if opt_condition:
+                print("[CONCLUSION]: Heuristic is consistent.")
+            else:
+                print("[CONCLUSION]: Heuristic is not consistent.")
 
 if __name__ == "__main__":
     main()

@@ -65,11 +65,11 @@ class Node:
 
 def A_star(start: Node, nodes: dict, goal: list):
     open = [(start._heur, start)]
-    open_set = set([start._state]) #dodat skip list? micanje iz heapa nije efikasno
+    open_set = set([start._state]) 
     visited = set()
 
     while open:
-        estimatedCost, node = heapq.heappop(open) #currentCost je kriv
+        _ , node = heapq.heappop(open) 
         open_set.remove(node._state)
         visited.add(node._state)
 
@@ -86,8 +86,6 @@ def A_star(start: Node, nodes: dict, goal: list):
                     neighbourNode._parent = node
                     if neighbour in open_set:
                         open.remove((oldCost + neighbourNode._heur, neighbourNode))
-                        
-                        #open_set.remove(neighbour)
                     if neighbour in visited:
                         visited.remove(neighbour)  
                     heapq.heappush(open, (neighbourNode._cost + neighbourNode._heur, neighbourNode))    
@@ -96,6 +94,7 @@ def A_star(start: Node, nodes: dict, goal: list):
                 neighbourNode._cost = node._cost + price
                 heapq.heappush(open, (node._cost + price + neighbourNode._heur, neighbourNode))
             open_set.add(neighbourNode._state)
+            print(open)
     return False, 0
 
 #UCS algorithm

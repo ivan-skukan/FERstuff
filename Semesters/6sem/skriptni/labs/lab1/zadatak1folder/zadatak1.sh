@@ -1,7 +1,8 @@
 proba="Ovo je proba"
 echo $proba #provjeri
 
-lista_datoteka=($(find -type f))
+#lista_datoteka=($(find -type f))
+lista_datoteka=(*)
 echo "${lista_datoteka[@]}"
 
 proba3=""

@@ -1,0 +1,14 @@
+Prije pokretanja:
+    -ako ste na linuxu, upisite 'chmod +x [ime_aplikacije]' kako bi omogucili dozvole za pokretanje
+    -potrebni alati: python (barem 3.6)
+    -potrebna biblioteka za instalirati: pycryptodome (u CLI upisite 'pip install pycryptodome')
+
+Kako pokrenuti:
+        -u CLI
+        -pri skoro svakom koristenju aplikacije je potrebno upisati [master_password]
+        -prvi (ili prva dva) argument mora bit u nekom od oblika: ./[ime_aplikacije], python [ime_aplikacije] ili python3 [ime_aplikacijes]
+        -nakon toga su opcije argumenta:
+                                -init [master_password] - inicijalizacija glavne sifre (nemojte ju zaboravit!)
+                                -put [master_password] [service] [password] - pohrani sifru za uslugu
+                                -get [master_password] [service] - dohvati sifru za uslugu
+                                                                         

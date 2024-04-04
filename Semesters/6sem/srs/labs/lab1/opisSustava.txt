@@ -1,0 +1,9 @@
+Aplikacija pohranjuje parove usluga,sifra u tekstualnu datoteku u kriptiranom base64 obliku.
+
+Pri inicijalizaciji i svakom novom spremanju/mijenjanju sifre IV i salt se nasumicno generiraju. IV i salt se nekriptirano spremaju, ali njihova javnost nije problem,
+sustav ovisi o master_password-u koji korisnik pamti. Zbog cinjenice da se IV i salt stalno opet generiraju osigurana je povjerljivost zaporki
+zato sto novi salt u kombinaciji sa master_password-om ce dati drugi kljuc koji zajedno sa IV drugacije kriptira iste poruke. Isto se tako ostvaruje povjerljivost adresa
+
+IV i master_password daju ključ koji je generiran sa PBKDF2. Poruke se onda kriptiraju sa AES.GCM nacinom rada. GCM pruza i hash-like potpise
+i time prilikom dekriptiranja mozemo vidjeti ako je datoteka sa siframa bila dirana. Ako je bila ikakva promjena, dekriptiranje nece uspjeti.
+Time se ostvaruje integritet adresa i zaporki

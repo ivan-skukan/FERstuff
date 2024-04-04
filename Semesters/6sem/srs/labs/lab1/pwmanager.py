@@ -7,16 +7,11 @@ from Crypto.Hash import SHA256, HMAC
 from Crypto.Protocol.KDF import PBKDF2
 import base64
 import string
+import binascii
 from Crypto.Random import random
-#cemu moze pristupiti napadac?
-#sha za hashiranje
-#mac za integritet
-#pbkdf2 za kljuc
 
 def get_random_string(length):
-    # Combine all the characters you want to choose from
     letters_and_digits = string.ascii_letters + string.digits
-    # Use random.choices() to select characters from the combined string
     result_str = ''.join(random.choice(letters_and_digits) for _ in range(length))
     return result_str
 
@@ -30,30 +25,18 @@ def main():
     args = sys.argv[1:]
     aes = None
     iv = salt = ""
-    if args[0] == "reset":
-        if os.path.getsize(path) == 0:
-            print("There are no stored passwords.")
-            return
-        print("Are you sure you want to reset all stored passwords? (Y/N)")
-        answer = input()
-        if answer == "Y" or answer == "y":
-            with open(path, 'w') as file:
-                file.write('') #clear the file
-                print("All stored passwords have been deleted.")
-        else:
-            print("Operation canceled.")
-    elif args[0] == "init":
+    
+    if args[0] == "init":
         if len(args) != 2:
             print("Invalid number of arguments.")
             return
-        if not os.path.getsize(path) == 0:
+        if os.path.exists(path) and not os.path.getsize(path) == 0:
             print("Master password has already been initialized.")
             return
-        mp = args[1] #master password
-
-            #generiraj stvari idk
+        
+        mp = args[1] 
         iv, salt = initIVSalt()
-        #padding = Random.get_random_bytes(32)
+
         padding = get_random_string(32).encode('utf-8')
         key = PBKDF2(mp, salt, dkLen=32, count=100000, prf=lambda p,s: HMAC.new(p,s,SHA256).digest())
         aes = AES.new(key, AES.MODE_GCM, nonce=iv)
@@ -61,17 +44,13 @@ def main():
         encrypted, tag = aes.encrypt_and_digest(padding)
         base64enc = base64.b64encode(encrypted).decode('utf-8')
         base64tag = base64.b64encode(tag).decode('utf-8')
-        #base64line = base64.b64encode(b'|').decode('utf-8')
 
         iv = base64.b64encode(iv).decode('utf-8')
         salt = base64.b64encode(salt).decode('utf-8')
 
-        #bigstring = iv + '|' + salt + encrypted + '|' + tag
         bigstring = iv + '|' + salt + '|' + base64enc + '|' + base64tag
-        #hmac = HMAC.new(mp, digestmod=SHA256)
-        #hmac.update(mp)
 
-        with open(path, 'w') as file:
+        with open(path, 'w+') as file:
             file.write(bigstring)
 
 
@@ -85,22 +64,20 @@ def main():
         password = args[3]
 
         with open(path, 'r') as file:
-            bigstring = file.read()
-            #bigstring = base64.b64decode(bigstring).decode('utf-8')
-            iv = bigstring.split('|')[0]
-            iv = base64.b64decode(iv) #i think
-            salt = bigstring.split('|')[1]
-            salt = base64.b64decode(salt)
-            encrypted = bigstring.split('|')[2]
-            encrypted = base64.b64decode(encrypted)
-            tag = bigstring.split('|')[3]
-            tag = base64.b64decode(tag)
+            try:
+                bigstring = file.read()
+                iv = bigstring.split('|')[0]
+                iv = base64.b64decode(iv) 
+                salt = bigstring.split('|')[1]
+                salt = base64.b64decode(salt)
+                encrypted = bigstring.split('|')[2]
+                encrypted = base64.b64decode(encrypted)
+                tag = bigstring.split('|')[3]
+                tag = base64.b64decode(tag)
+            except binascii.Error:
+                print("Integrity of the file has been compromised.")
+                return
 
-            #iv = base64.b64decode(iv)
-            #salt = base64.b64decode(salt)
-            #encrypted = base64.b64decode(encrypted)
-            #tag = base64.b64decode(tag)
-            #TU SAM STAOOO!!!!!!!!!!!!!!!!!!!!!!!!!
             key = PBKDF2(mp, salt, dkLen=32, count=100000, prf=lambda p,s: HMAC.new(p,s,SHA256).digest())
             aes = AES.new(key, AES.MODE_GCM, nonce=iv)
 
@@ -112,15 +89,20 @@ def main():
             
             decrypted = decrypted.decode('utf-8')
 
-            if site in decrypted: #treba popravit za slicne passworde i stranice
-                start = decrypted.find(site) + len(site) + 1
-                end = decrypted.find('|', start)
-                oldpass = decrypted[start:end]
-                decrypted = decrypted.replace(oldpass, password)
+            site += ' '
+
+            if site in decrypted:
+                start = decrypted.find(site) + len(site) + 1 
+                end = decrypted.find('\t', start)
+                if end == -1:
+                    end = len(decrypted)
+                oldpass = decrypted[start:end] 
+                decrypted = decrypted.replace(site + " " + oldpass, site + " " + password)
+                
             else:
-                decrypted += "|" + site + "," + password
+                decrypted += "\t" + site + " " + password
             
-            print(decrypted)
+            #print(decrypted)
             #base64enc = base64.b64encode(encrypted).decode('utf-8')
             #base64tag = base64.b64encode(tag).decode('utf-8')
             #base64line = base64.b64encode(b'|').decode('utf-8')
@@ -146,15 +128,19 @@ def main():
         site = args[2]
 
         with open(path,'r') as file:
-            bigstring = file.read()
-            iv = bigstring.split('|')[0]
-            iv = base64.b64decode(iv)
-            salt = bigstring.split('|')[1]
-            salt = base64.b64decode(salt)
-            encrypted = bigstring.split('|')[2]
-            encrypted = base64.b64decode(encrypted)
-            tag = bigstring.split('|')[3]
-            tag = base64.b64decode(tag)
+            try:
+                bigstring = file.read()
+                iv = bigstring.split('|')[0]
+                iv = base64.b64decode(iv)
+                salt = bigstring.split('|')[1]
+                salt = base64.b64decode(salt)
+                encrypted = bigstring.split('|')[2]
+                encrypted = base64.b64decode(encrypted)
+                tag = bigstring.split('|')[3]
+                tag = base64.b64decode(tag)
+            except binascii.Error:
+                print("Master password incorrect or integrity of the file has been compromised.")    
+                return
 
             key = PBKDF2(mp, salt, dkLen=32, count=100000, prf=lambda p,s: HMAC.new(p,s,SHA256).digest())
             aes = AES.new(key, AES.MODE_GCM, nonce=iv)
@@ -166,20 +152,21 @@ def main():
                 return    
             
             decrypted = decrypted.decode('utf-8')
-            print(decrypted)
+            #print(decrypted)
+
+            site += ' '
 
             if site in decrypted:
                 start = decrypted.find(site) + len(site) + 1
-                end = decrypted.find('|', start)
+                end = decrypted.find('\t', start)
                 if end == -1:
                     end = len(decrypted)    
                 password = decrypted[start:end]
                 print(password)
             else:
-                print("Site not found.")
+                print("Master password incorrect or integrity of the file has been compromised.")
     else:
         print("Invalid command.")
 
 if "__main__" == __name__:
         main()
-    

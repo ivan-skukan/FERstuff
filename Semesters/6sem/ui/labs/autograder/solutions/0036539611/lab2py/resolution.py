@@ -1,14 +1,19 @@
 import itertools
 
-NIL = frozenset("NIL")
+NIL = "NIL"
+parentDict = {}
 
 def negateFinal(finalClause):
     newClauses = set()
 
     for literal in finalClause:
         notLiteral = literal[1:] if literal[0] == '~' else '~' + literal
-        newClauses.add(notLiteral)
-    newClauses = frozenset(newClauses) #CHECK!!!!
+        #newClauses.add(notLiteral)
+        #print(notLiteral)
+        newClauses.add(frozenset([notLiteral]))
+    #newClauses = frozenset(newClauses) #CHECK!!!!
+    #print(newClauses)
+    #exit()
     return newClauses
 
 #check if clause2 is a subset of clause1
@@ -30,17 +35,16 @@ def simplify(clauses):
                 break
         for c2 in clauses:
             if c1 is not c2:
-                if c2.issubset(c1): #check if c1 is a superset of c2. If so, remove it
+                if c2.issubset(c1): #if c1 is a superset, remove it
                     addClause = False
                     break
         if addClause:
             newClauses.add(c1)
 
-    return newClauses     
+    return frozenset(newClauses)     
 
 
 def plResolve(c1,c2):
-    #print("resolving")
     #literals1 = set(c1.split(' v '))
     #literals2 = set(c2.split(' v '))
     resolvents = set()
@@ -51,21 +55,24 @@ def plResolve(c1,c2):
         if notl1 in c2:
             #print("found something")
             if len(c1) == 1 and len(c2) == 1:
-                resolvents.add(NIL)
+                resolvents.add(frozenset(["NIL"])) #NOVO, trebalo bi bit ok
+                parentDict["NIL"] = (c1,c2)
+                #print(resolvents)
+                break #!!!!!!!!!!!!
             newClause = set(c1.copy()) | set(c2.copy()) #union
             newClause.remove(notl1)
             newClause.remove(l1)
-            #frozenset
+
             newClause = frozenset(newClause)
             resolvents.add(newClause) 
-
+            parentDict[newClause] = (c1,c2)
             #break
-
+#YOOOOOOOOOOO
     return resolvents
 
 def plResolution(clauses, finalClause):
     SOSclauses = set()
-    SOSclauses.add(negateFinal(finalClause)) #valjda, triple check!!!!
+    SOSclauses.update(negateFinal(finalClause)) #valjda, triple check!!!!
     #print(SOSclauses)
     #print("clauses before:",clauses)
     clauses = simplify(clauses)
@@ -77,32 +84,47 @@ def plResolution(clauses, finalClause):
     allClauses.update(SOSclauses)
     allClauses.update(clauses)
     #print(allClauses)
+    #exit()
     new = set()
     #i = 0 #debugging
     #j = 0
-    checked = set() #novo!!!!!!!!
+    #checked = set() #novo!!!!!!!!
+    checked = {}
 
     while True:
+        #print("loop0")
+        SOScopy = SOSclauses.copy()
         for c1 in allClauses: #original clauses?
+            #print("loop1")
             #print(i)
             #i += 1
             for c2 in SOSclauses: #original clauses?
+                #print("loop2")
                 #print(c1,c2)
                 #print(j)
                 #j += 1
-                if c1 == c2 or (c1,c2) in checked:
+                if c1 == c2 or (c1,c2) in checked or (c2,c1) in checked: #NOVO
                     continue
-                checked.add((c1,c2))
+                checked[(c1,c2)] = None
                 resolvents = plResolve(c1,c2)
                 #print(resolvents)
-                if NIL in resolvents:
-                    return True
-                new.update(resolvents)
-                resolvents = simplify(resolvents) #check!!!!
+                if frozenset([NIL]) in resolvents: #NOVO
+                    return True, parentDict
+                
+                resolvents = simplify(resolvents) #check!!!! ovo prvo?
+                new.update(resolvents) #ovo drugo?
+                if not (resolvents.issubset(SOScopy)):
+                    SOScopy.update(new)
+                checked[(c1,c2)] = resolvents
+                #print(new)
 
-        if new.issubset(allClauses): #check #vjv mogu direkt 
-            return False
+        if new.issubset(allClauses):
+            return False, parentDict
         allClauses.update(new) 
-        SOSclauses.update(new)
+        #if not (new.issubset(SOSclauses)):
+            #SOSclauses.update(new)
+        SOSclauses = SOScopy.copy()    
+        #print(SOSclauses)
+        #exit()
     
  

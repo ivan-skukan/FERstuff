@@ -8,6 +8,14 @@ from resolution import plResolution
 #possible ways to remember parent clauses?
 #dictionary with clause as key and parent clauses as value?
 #class?
+NIL = frozenset("NIL")
+
+def getSolutionPath(parentDict):
+    i = 0
+
+    path = []
+
+    #path.append(parentDict[NIL])
 
 def parse_clause_file(clause_file):
     clauses = set()
@@ -16,6 +24,8 @@ def parse_clause_file(clause_file):
     with open(clause_file, 'r', encoding='utf-8') as f:
         lines = f.readlines()
         final = frozenset(lines[-1].strip().lower().split(' v '))
+        global lastline
+        lastline = lines[-1].strip().lower()
 
         for i,line in enumerate(lines):
             if line.startswith('#'):
@@ -36,30 +46,25 @@ def parse_input_file(input_file):
     return commands
 
 def main():
-    #res_cook = sys.argv[1]
-    #clause_file = sys.argv[2]
-    #input_file = sys.argv[3] #later
+    res_cook = sys.argv[1]
+    clause_file = sys.argv[2]
+    if res_cook == "cooking":
+        input_file = sys.argv[3] #later
     
     #to be implemented?
     #parser = argparse.ArgumentParser() 
-    clause_file = '../../../data/lab2/files/resolution_small_example_3.txt'
-    #za new_example_6 a is true
-    #coffe or tea pada
-    #coffe or tea nopowder pada
+    #clause_file = '../../../data/lab2/files/resolution_small_example_4.txt'
     try:
         clauses, toProveClause = parse_clause_file(clause_file)
     except FileNotFoundError:
         print("Error: Could not parse clause file, exiting")
         exit(1)
-    result = plResolution(clauses,toProveClause)
+    result, parentDict = plResolution(clauses,toProveClause)
     toProveClause = list(toProveClause)
     toProveClauseString = ""
-    for clause in toProveClause:
-        #print(clause)
-        toProveClauseString += " v " + clause
-    toProveClauseString = toProveClauseString[3:]    
+    #output = getSolutionPath(parentDict)
     result = "true" if result else "unknown"
-    print(f"[CONCLUSION] : {toProveClauseString} is {result} ")
+    print(f"[CONCLUSION]: {lastline} is {result} ")
     """ #later
     if(res_cook == "cooking"):
         try:

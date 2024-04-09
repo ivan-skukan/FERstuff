@@ -56,8 +56,6 @@ def plResolve(c1,c2):
             #print("found something")
             if len(c1) == 1 and len(c2) == 1:
                 resolvents.add(frozenset(["NIL"])) #NOVO, trebalo bi bit ok
-                parentDict["NIL"] = (c1,c2)
-                #print(resolvents)
                 break #!!!!!!!!!!!!
             newClause = set(c1.copy()) | set(c2.copy()) #union
             newClause.remove(notl1)
@@ -65,7 +63,6 @@ def plResolve(c1,c2):
 
             newClause = frozenset(newClause)
             resolvents.add(newClause) 
-            parentDict[newClause] = (c1,c2)
             #break
 #YOOOOOOOOOOO
     return resolvents
@@ -86,10 +83,8 @@ def plResolution(clauses, finalClause):
     #print(allClauses)
     #exit()
     new = set()
-    #i = 0 #debugging
-    #j = 0
-    #checked = set() #novo!!!!!!!!
     checked = {}
+    global parentDict
 
     while True:
         #print("loop0")
@@ -108,14 +103,20 @@ def plResolution(clauses, finalClause):
                 checked[(c1,c2)] = None
                 resolvents = plResolve(c1,c2)
                 #print(resolvents)
+                resolvents = simplify(resolvents)
                 if frozenset([NIL]) in resolvents: #NOVO
+                    parentDict["NIL"] = (c1,c2)
                     return True, parentDict
                 
-                resolvents = simplify(resolvents) #check!!!! ovo prvo?
+                #resolvents = simplify(resolvents) #check!!!! ovo prvo?
+                #resolvents je frozen(frozen())??
+                #print(resolvents)
                 new.update(resolvents) #ovo drugo?
                 if not (resolvents.issubset(SOScopy)):
                     SOScopy.update(new)
                 checked[(c1,c2)] = resolvents
+                if len(resolvents) > 0:
+                    parentDict[list(resolvents)[0]] = (c1,c2) #novo
                 #print(new)
 
         if new.issubset(allClauses):

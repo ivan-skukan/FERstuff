@@ -1,21 +1,64 @@
-import argparse
-import os
-import sys
-import heapq
-from collections import deque
 from resolution import plResolution
+from resolution import negateFinal
+import sys
 
-#possible ways to remember parent clauses?
-#dictionary with clause as key and parent clauses as value?
-#class?
-NIL = frozenset("NIL")
+def getPath(parentDict,parentKey,tuple,clauses):
+    c1,c2 = tuple
+    if c1 not in clauses:
+        getPath(parentDict,c1,parentDict[c1],clauses)
+    if c2 not in clauses:
+        getPath(parentDict,c2,parentDict[c2],clauses)
+    c1string = ""
+    for literal in c1:
+        c1string += ' v ' + literal
+    c1string = c1string[3:]
+    c2string = ""
+    for literal in c2:
+        c2string += ' v ' + literal
+    c2string = c2string[3:]
+    parentList = list(parentKey)
+    resultString = ""  
+    for literal in parentList:
+        resultString += ' v ' + literal
+    resultString = resultString[3:]
+    #print(resultString)
+    #print(parentKey)
+    #exit()
+    resultString = ""
+    for literal in parentKey:
+        resultString += ' v ' + literal
+    resultString = resultString[3:]
+    if parentKey == "NIL":
+        print(f"{c1string} + {c2string} => {parentKey}")
+        return
+    print(f"{c1string} + {c2string} => {resultString}")
 
-def getSolutionPath(parentDict):
-    i = 0
 
-    path = []
-
-    #path.append(parentDict[NIL])
+def printResult(clauses,toProveClause,parentDict):
+    final = negateFinal(toProveClause)
+    i = 1
+    for clause in clauses:
+        #print(clause)
+        #print(clauses)
+        lineString = ""
+        for literal in clause:
+            lineString += ' v ' + literal
+        lineString = lineString[3:]
+        print(f"{i}. {lineString}")
+        i += 1
+    finalString = ""
+    for literal in final:
+        finalString += ' v ' + list(literal)[0]
+    finalString = finalString[3:]        
+    print(f"{i}. {finalString}")
+    print("===============")
+    #i += 1
+    #print(final)
+    #print(clauses)
+    clauses.update(final)
+    #print(clauses)
+    #exit()
+    getPath(parentDict,"NIL",parentDict["NIL"],clauses) #check
 
 def parse_clause_file(clause_file):
     clauses = set()
@@ -46,14 +89,12 @@ def parse_input_file(input_file):
     return commands
 
 def main():
-    res_cook = sys.argv[1]
-    clause_file = sys.argv[2]
-    if res_cook == "cooking":
-        input_file = sys.argv[3] #later
-    
-    #to be implemented?
-    #parser = argparse.ArgumentParser() 
-    #clause_file = '../../../data/lab2/files/resolution_small_example_4.txt'
+    #res_cook = sys.argv[1]
+    #clause_file = sys.argv[2]
+    #if res_cook == "cooking":
+        #input_file = sys.argv[3] #later
+
+    clause_file = '../../../data/lab2/files/new_example_5.txt'
     try:
         clauses, toProveClause = parse_clause_file(clause_file)
     except FileNotFoundError:
@@ -61,9 +102,10 @@ def main():
         exit(1)
     result, parentDict = plResolution(clauses,toProveClause)
     toProveClause = list(toProveClause)
-    toProveClauseString = ""
     #output = getSolutionPath(parentDict)
     result = "true" if result else "unknown"
+    if result == "true":
+        printResult(clauses,toProveClause,parentDict)
     print(f"[CONCLUSION]: {lastline} is {result} ")
     """ #later
     if(res_cook == "cooking"):

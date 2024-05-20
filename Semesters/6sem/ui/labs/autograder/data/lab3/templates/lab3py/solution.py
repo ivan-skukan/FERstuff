@@ -5,7 +5,7 @@ from collections import Counter
 import copy
 
 
-def entropy(x): #not finished?
+def entropy(x):
     return 0 if x==0 else x*math.log(x,2)
 
 def information_gain(dataset,x_index):
@@ -39,7 +39,7 @@ def information_gain(dataset,x_index):
 
     #print(total_entropy)
     #print(sum / (len(dataset)))
-    print("IG:",total_entropy - sum / len(dataset))
+    #print("IG:",total_entropy - sum / len(dataset))
     #exit()
     return total_entropy - sum / len(dataset)
     
@@ -87,7 +87,7 @@ class ID3:
             for x in X:
                 IGs[x] = information_gain(dataset,self.features.index(x))
 
-            print(IGs)
+            #print(IGs)
             #exit()
             IGs = dict(sorted(IGs.items()))
             return max(IGs, key=IGs.get)
@@ -141,29 +141,34 @@ class ID3:
         #predict result
         _, data, _ = read_file(test_dataset)
 
-        root = self.root.copy()
+        correct = 0
+        incorrect = 0
         
         for row in data:
-            for x in row:
-                pass
+            root = self.root.copy() #useless?
+            #for x in row[:-1]:
+                
 
-    def _print_step(self,elements,depth):
+    def _print_step(self,elements,string,depth):
         if isinstance(elements[1],Leaf):
-            print(elements[0], elements[1].value)
+            print(string, elements[1].value,end="\n")
             return
-        print(elements[0])
+        
         for element in elements[1].subtrees:
-            self._print_step(element,depth+1)
+            new_string = string + f' {depth}:{elements[1].feature}={element[0]}'
+            self._print_step(element,new_string,depth+1)
 
     def print_tree(self):
         #print(self.root.feature,self.root.subtrees)
         print("[BRANCHES]:")
         root = self.root.copy()
         depth = 1
-        print(root.feature)
-        print(root.subtrees)
+        string = ""
+        #print(root.subtrees)
         for element in root.subtrees:
-            self._print_step(element,depth+1)
+            string = f'{depth}:{root.feature}={element[0]}'
+            self._print_step(element,string,depth+1)
+            #print()
    
 def main():
     path = '../../files/'
@@ -172,10 +177,10 @@ def main():
 
     model = ID3()
     model.fit(train_dataset)
-    print()
+    #print()
     model.print_tree()
     print("end fit")
-    exit()
+    #exit()
     predictions = model.predict(test_dataset)
 
 

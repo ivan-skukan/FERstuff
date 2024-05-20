@@ -147,22 +147,23 @@ class ID3:
             for x in row:
                 pass
 
-    def _print_step(self,elements):
+    def _print_step(self,elements,depth):
         if isinstance(elements[1],Leaf):
             print(elements[0], elements[1].value)
             return
         print(elements[0])
         for element in elements[1].subtrees:
-            self._print_step(element)
+            self._print_step(element,depth+1)
 
     def print_tree(self):
         #print(self.root.feature,self.root.subtrees)
+        print("[BRANCHES]:")
         root = self.root.copy()
-
+        depth = 1
         print(root.feature)
         print(root.subtrees)
         for element in root.subtrees:
-            self._print_step(element)
+            self._print_step(element,depth+1)
    
 def main():
     path = '../../files/'

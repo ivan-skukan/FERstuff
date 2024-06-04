@@ -24,6 +24,7 @@ class NN:
         self.weights = {}
         self.layers = [input_size] + hidden_layers + [1] #check lol
         self._init_weights()
+        self.last_eval = 0
 
     def _init_weights(self):
         nn_depth = len(self.layers)
@@ -41,9 +42,14 @@ class NN:
             expected_results.append(sample[-1])
         
         err = self.mean_sq_err(expected_results,results,len(dataset))
+        self.last_eval = self.fitness(err)
 
         return err
 
+    def fitness(self,err):
+        if err == 0:
+            return 1/10e-8
+        return 1/err
 
     def forward(self,X: list):
         output = X.copy()
@@ -69,4 +75,4 @@ class NN:
     
     def copy(self,other):
         layers_copy = other.layers.copy()
-        return NN(other.layers[0],layers_copy[1:-1])
+        return NN(layers_copy[0],layers_copy[1:-1])

@@ -1,0 +1,14 @@
+Potrebni alati:
+	Python 3
+	Bcrypt biblioteka
+usermgmt.py korištenje:
+	python/python3 usermgmt.py add/del/forcepass/passwd <username>
+	add - dodavanje novog korisnika. ako upisani već postoji, izbacuje se error
+	del - brisanje korisnika, ako upisani ne postoji, izbacuje se error
+	forcepass - forsiranje korisnika da mijenja password pri sljedećem loginu
+	passwd - osobno mijenjanje passworda za danog korisnika
+login.py korištenje:
+	python/python3 login.py login <username>
+	login - logina danog korisnika ako postoji. Ako se upiše krivi password 3 puta, program prestaje
+
+Svugdje gdje se treba napraviti novi password postoji provjera da je dovoljno jak

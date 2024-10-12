@@ -1,0 +1,12 @@
+programi koriste bcrypt biblioteku kako bi, u kombinaciji sa saltom, hashirali passworde. U datoteci
+jedan red predstavlja jednog korisnika. 
+Zapisi su sljedeci(odvojeni razmakom): username, hashpassword, zatavica(0 ili 1), salt (za tog korisnika).
+Kada se stvara novi korisnik, generira se novi slucajni salt za tog korisnika i koristi se u kombinaciji sa passwordom
+koji je admin upisao (uz uvjet da je prosao provjeru jacine passworda) kako bi se hashirao pass i zapisao sa saltom.
+Zastavica 0/1 označuje ako je admin za korisnika iskoristio 'forcepass'.
+Kada korisnik obavlja login, upisani hashirani password se provjerava za spremljenim. Kada je korisnik forsiran promijeniti
+pass, ne smije koristiti isti kao i prije.
+
+Koristi se provjera jačine passworda kako bi se smanjila učinkovitost rainbow table napada i pogađanja.
+Koristi se 'getpass' umjesto 'input' kako se nebi vidjelo upisivanje passworda.
+

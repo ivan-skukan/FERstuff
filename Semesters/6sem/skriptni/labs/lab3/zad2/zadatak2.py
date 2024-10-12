@@ -4,7 +4,7 @@ def main():
     if len(sys.argv) != 2:
         print("Usage: python zadatak2.py <filename>")
         sys.exit(1)
-    #print("test")
+    print("test")
     filename = sys.argv[1]
     try:
         with open(filename, "r") as f:
@@ -15,6 +15,7 @@ def main():
 
     step = 0.1
     table = {}
+
 
     for i,line in enumerate(lines):
         key = str(i).zfill(3)

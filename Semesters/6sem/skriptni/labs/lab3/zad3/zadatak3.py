@@ -37,7 +37,7 @@ def main():
                         continue
                     #print('here')
                     lab_grades[jmbag][lab] = grade
-    print(lab_grades)
+    #print(lab_grades)
     print("JMBAG".ljust(10), "Prezime".ljust(15), "Ime".ljust(15), end="")
     for i in range(1, max_lab + 1):
         print(f"L{i}".ljust(10), end="")

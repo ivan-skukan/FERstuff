@@ -33,10 +33,13 @@ def multiply_matrix(A,B,result_file):
 
     with open(result_file, 'w') as f:
         f.write('A*B:\n')
+        f.write(f"{n_A} {m_B}\n")
         for i in range(n_A):
             for j in range(m_B):
-                f.write(str(AB[(i,j)]) + ' ')
-            f.write('\n')            
+                if AB[(i,j)] != 0:
+                    f.write(f"{i} {j} {AB[(i,j)]}")
+                    f.write('\n')
+            #f.write('\n')            
 
     return AB
 

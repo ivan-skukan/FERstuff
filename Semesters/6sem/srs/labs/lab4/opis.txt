@@ -1,0 +1,35 @@
+Pokrenemo na client terminalu:
+$ sudo himage client
+client# telnet 203.0.113.10
+
+Izaberemo 'Follow TCP stream'. Ispis:
+........... ..!.."..'........ ..#..'........!..".....#....P...... .....'........... .38400,38400....'.......vt100...........Ubuntu 20.04.6
+LTS
+...www login: login
+.
+Password: pass
+.
+
+Login incorrect
+www login:
+Login timed out after 60 seconds
+
+dalje:
+client# ssh 203.0.113.10
+SSH je šifriran pa ne možemo vidjeti ništa korisno:
+
+SSH-2.0-OpenSSH_8.2pi Ubuntu-4ubuntu0.11 SSH-2.0-OpenSSH_8.2pi Ubuntu-4ubuntu0.11 ........ X.J.S....M./2  sk-ssh-ed25519-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-256-cert-v0Vopenssh.com,ssh-rsa-cert-vOiglopenssh.com,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,sk-ecdsa-sha2-nistp256@openssh.com,ssh-ed25519,sk-ssh-ed25519@openssh.com,rsa-sha2-512,rsa-sha2-256,ssh-rsa...lchacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com...lchacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256- ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com....umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-shai-etm@openssh.com,umac-64@openssh.com,umac-128Qopenssh.com,hmac-sha2-256,hmac-sha2-512,hmac-shal....umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512- etm@openssh.com,hmac-shai-etm@openssh.com,umac-64Qopenssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-shai....nonefzlibElopenssh.com,zlib....none,zlib@openssh.com,zlib  4 u5  curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256,Kex-strict-s-v00@openssh.com...Arsa-sha2-512,rsa-sha2-256,ssh-rsa,ecdsa-sha2-nistp256,ssh-ed25519...lchacha20-poly1305@openssh.com,aes128- ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com...lchacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com....umac-64- etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etmQopenssh.com,hmac-sha2-512-etmQopenssh.com,hmac-shai-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-shal....umac-64-etmQopenssh.com,umac-128-etmQopenssh.com,hmac-sha2-256-etmElopenssh.com,hmac-sha2-512-etm@openssh.com,hmac-shai-etm@openssh.com,umac-64@openssh.comfumac-128@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-shal....none,zlib@openssh.com....none,zlib@openssh.com  .w..oll. .mJ/Xc.9E.W nz]D.@  ....h....ecdsa-sha2-nistp256....nistp256...A ...... L...a(.9..A....mjC...?bi$....b.\ . ! ..... ...... *..=Nn.U.4... .7 ... KO   . I . ]. .w.* .Z. .)..;   4.I_... L.1 .TiF../x.m..m.A.f..p   oM<.; Auo. .q..S.a.-.z.YP.f "u. .Dtd. ' .vev›.1.[..@.1.n,'.@..g.T..B.mMs Dl. .HN. .g[P..J.S..6Vj%..K4 . ? ... r...U.c..;.x2...'- fh.t]..n..@...\.Rr.Q..=+..W..e.b.... M 9  943*  f  We .#..).,../3..].H....;P. ..... v...?.j..I..1...#.K0 FxWj.5?. .>..@. ,.6.Y..p%..g..\. .1i..S."M  n A T  .n .... :11.. 
+==================================================================================================================
+Ispisa ima još, ali nema ništa korisno
+
+==================================================================================================================
+sys_scan:
+skenira se sa 10.26.163.1, 10.26.163.192
+
+skenira se 10.26.163.236
+
+otvoreni TCP portovi: 80, 443, 22
+
+zatvoreni TCP portovi: 8080, 25, 53, 23
+
+Dalje sam išao po uputama i dodavao pravila, koristeći zastavicu -A kako bi se pravila gledala po redu. Za skoro sva pravila koristimo FORWARD jer se većinu pravila ne odnosi na FW čvor već samo na pakete koji prolaze kroz FW.
